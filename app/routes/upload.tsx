@@ -60,24 +60,24 @@ export async function loader({ params }: Route.LoaderArgs) {
   }
 }
 
-export async function action({ request, params }: Route.ActionArgs) {
+export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
-  if (intent === "delete") {
-    const imagePath = formData.get("imagePath") as string;
-    if (!imagePath) {
-      throw new Error("Image path is required");
+  if (intent === "deleteDirectory") {
+    const dirPath = formData.get("dirPath") as string;
+    if (!dirPath) {
+      throw new Error("Directory path is required");
     }
 
-    const fullPath = path.join(process.cwd(), imagePath.replace(/^\/uploads/, "uploads"));
+    const fullPath = path.join(process.cwd(), dirPath.replace(/^\/uploads/, "uploads"));
 
     try {
-      await fs.unlink(fullPath);
+      await fs.rm(fullPath, { recursive: true });
       return { success: true };
     } catch (error) {
-      console.error("Error deleting file:", error);
-      throw new Error("Failed to delete image");
+      console.error("Error deleting directory:", error);
+      throw new Error("Failed to delete directory");
     }
   }
 
