@@ -16,6 +16,30 @@ import {
 
 import type { Route } from "./+types.uploads";
 
+export async function action({ request }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "deleteDirectory") {
+    const dirPath = formData.get("dirPath") as string;
+    if (!dirPath) {
+      throw new Error("Directory path is required");
+    }
+
+    const fullPath = path.join(process.cwd(), dirPath.replace(/^\/uploads/, "uploads"));
+
+    try {
+      await fs.rm(fullPath, { recursive: true });
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting directory:", error);
+      throw new Error("Failed to delete directory");
+    }
+  }
+
+  return null;
+}
+
 export async function loader() {
   try {
     const uploadsDir = path.join(process.cwd(), "uploads");
