@@ -232,7 +232,7 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
     <div className="">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Images</h1>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-4 [&>*:last-child]:ml-auto">
           <div className="flex flex-col gap-1">
             <label htmlFor="pageSize" className="text-sm font-medium">
               Page Size
