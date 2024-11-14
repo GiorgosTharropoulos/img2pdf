@@ -91,13 +91,15 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
       )}
       <Modal isOpen={!!modalImage} onClose={() => setModalImage(null)}>
         {modalImage && (
-          <div className="flex flex-col items-center gap-4">
-            <img
-              src={modalImage}
-              alt="Selected image"
-              className="max-h-[85vh] max-w-[85vw] object-contain"
-            />
-            <div className="flex gap-4">
+          <div className="flex flex-col items-center" style={{ height: '85vh' }}>
+            <div className="flex-1 flex items-center justify-center w-full">
+              <img
+                src={modalImage}
+                alt="Selected image"
+                className="max-h-full max-w-full object-contain"
+              />
+            </div>
+            <div className="flex gap-4 py-4">
               <Button onClick={previousImage} variant="outline">Previous</Button>
               <Button onClick={nextImage} variant="outline">Next</Button>
             </div>
