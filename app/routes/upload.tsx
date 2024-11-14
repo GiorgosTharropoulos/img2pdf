@@ -1,6 +1,21 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { useCallback, useState } from "react";
+import { useCallback, useState, useMemo } from "react";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 import type { Route } from "./+types.upload";
 import { Button } from "~/components/ui/button";
@@ -28,10 +43,51 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {}
 
+function SortableImage({ image, isSelected, onClick }: { 
+  image: { path: string; name: string }; 
+  isSelected: boolean;
+  onClick: (e: React.MouseEvent) => void;
+}) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+  } = useSortable({ id: image.path });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      onClick={onClick}
+      className={`aspect-square cursor-pointer overflow-hidden rounded-lg border ${
+        isSelected ? "ring-2 ring-blue-500" : ""
+      }`}
+    >
+      <img src={image.path} alt={image.name} className="h-full w-full object-cover" />
+    </div>
+  );
+}
+
 export default function Upload({ loaderData }: Route.ComponentProps) {
-  const { images } = loaderData;
+  const [orderedImages, setOrderedImages] = useState(loaderData.images);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [modalImage, setModalImage] = useState<string | undefined>();
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const toggleImage = useCallback((imagePath: string) => {
     setSelectedImages((prev) => {
@@ -71,22 +127,35 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
     <div className="">
       <h1 className="mb-6 text-2xl font-bold">Images</h1>
 
-      {images.length === 0 ? (
+      {orderedImages.length === 0 ? (
         <p className="text-gray-500">No images found in this directory</p>
       ) : (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-          {images.map((image) => (
-            <div
-              key={image.path}
-              onClick={(e) => handleImageClick(image.path, e)}
-              className={`aspect-square cursor-pointer overflow-hidden rounded-lg border ${
-                selectedImages.has(image.path) ? "ring-2 ring-blue-500" : ""
-              }`}
-            >
-              <img src={image.path} alt={image.name} className="h-full w-full object-cover" />
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={({ active, over }) => {
+            if (over && active.id !== over.id) {
+              setOrderedImages((items) => {
+                const oldIndex = items.findIndex((item) => item.path === active.id);
+                const newIndex = items.findIndex((item) => item.path === over.id);
+                return arrayMove(items, oldIndex, newIndex);
+              });
+            }
+          }}
+        >
+          <SortableContext items={orderedImages.map(img => img.path)}>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+              {orderedImages.map((image) => (
+                <SortableImage
+                  key={image.path}
+                  image={image}
+                  isSelected={selectedImages.has(image.path)}
+                  onClick={(e) => handleImageClick(image.path, e)}
+                />
+              ))}
             </div>
-          ))}
-        </div>
+          </SortableContext>
+        </DndContext>
       )}
       <Modal
         isOpen={!!modalImage}
