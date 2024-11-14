@@ -103,8 +103,10 @@ function SortableImage({
     transition,
   };
 
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
   return (
-    <AlertDialog>
+    <>
       <ContextMenu>
         <ContextMenuTrigger>
           <div
@@ -133,35 +135,42 @@ function SortableImage({
             {isSelected ? "Deselect" : "Select"}
           </ContextMenuItem>
           <ContextMenuSeparator />
-          <AlertDialogTrigger asChild>
-            <ContextMenuItem className="text-red-600 focus:text-red-600">Delete</ContextMenuItem>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-              <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the image.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                onClick={(e) => {
-                  e.preventDefault();
-                  const form = new FormData();
-                  form.append("intent", "delete");
-                  form.append("imagePath", image.path);
-                  fetcher.submit(form, { method: "post" });
-                }}
-                className="bg-red-600 hover:bg-red-700"
-              >
-                Delete
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
+          <ContextMenuItem 
+            className="text-red-600 focus:text-red-600"
+            onClick={() => setShowDeleteDialog(true)}
+          >
+            Delete
+          </ContextMenuItem>
         </ContextMenuContent>
       </ContextMenu>
-    </AlertDialog>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. This will permanently delete the image.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e) => {
+                e.preventDefault();
+                const form = new FormData();
+                form.append("intent", "delete");
+                form.append("imagePath", image.path);
+                fetcher.submit(form, { method: "post" });
+                setShowDeleteDialog(false);
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 
