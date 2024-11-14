@@ -1,14 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { useCallback, useEffect, useState } from "react";
-import { useFetcher } from "@remix-run/react";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
 import {
   closestCenter,
   DndContext,
@@ -24,9 +16,17 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { useFetcher } from "react-router";
 
 import type { Route } from "./+types.upload";
 import { Button } from "~/components/ui/button";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "~/components/ui/context-menu";
 import { Modal } from "~/components/ui/modal";
 
 export async function loader({ params }: Route.LoaderArgs) {
@@ -60,7 +60,7 @@ export async function action({ request, params }: Route.ActionArgs) {
     }
 
     const fullPath = path.join(process.cwd(), imagePath.replace(/^\/uploads/, "uploads"));
-    
+
     try {
       await fs.unlink(fullPath);
       return { success: true };
@@ -82,6 +82,7 @@ function SortableImage({
   isSelected: boolean;
   onClick: (e: React.MouseEvent) => void;
 }) {
+  const fetcher = useFetcher();
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
     id: image.path,
   });
@@ -99,12 +100,16 @@ function SortableImage({
           style={style}
           {...attributes}
           {...listeners}
-          className={`aspect-square cursor-pointer overflow-hidden rounded-lg border select-none ${
+          className={`aspect-square cursor-pointer select-none overflow-hidden rounded-lg border ${
             isSelected ? "ring-2 ring-blue-500" : ""
           }`}
         >
           <div className="h-full w-full">
-            <img src={image.path} alt={image.name} className="h-full w-full object-cover pointer-events-none" />
+            <img
+              src={image.path}
+              alt={image.name}
+              className="pointer-events-none h-full w-full object-cover"
+            />
           </div>
         </div>
       </ContextMenuTrigger>
@@ -134,9 +139,8 @@ function SortableImage({
 }
 
 export default function Upload({ loaderData }: Route.ComponentProps) {
-  const fetcher = useFetcher();
   const [orderedImages, setOrderedImages] = useState(loaderData.images);
-  
+
   useEffect(() => {
     setOrderedImages(loaderData.images);
   }, [loaderData.images]);
