@@ -1,5 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { X } from "lucide-react";
 import { useState } from "react";
 import { NavLink, Outlet, useFetcher } from "react-router";
 import {
@@ -12,12 +13,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
 
 import type { Route } from "./+types.uploads";
 
@@ -57,25 +52,22 @@ export default function Uploads({ loaderData }: Route.ComponentProps) {
                 const fetcher = useFetcher();
 
                 return (
-                  <div key={dir.path}>
-                    <ContextMenu>
-                      <ContextMenuTrigger>
-                        <NavLink
-                          className="block rounded-lg border p-4 hover:bg-gray-50 [&.active]:bg-accent [&.active]:underline"
-                          to={dir.path}
-                        >
-                          {dir.name}
-                        </NavLink>
-                      </ContextMenuTrigger>
-                      <ContextMenuContent>
-                        <ContextMenuItem
-                          className="text-red-600 focus:text-red-600"
-                          onClick={() => setShowDeleteDialog(true)}
-                        >
-                          Delete Directory
-                        </ContextMenuItem>
-                      </ContextMenuContent>
-                    </ContextMenu>
+                  <div key={dir.path} className="group relative">
+                    <NavLink
+                      className="block rounded-lg border p-4 hover:bg-gray-50 [&.active]:bg-accent [&.active]:underline"
+                      to={dir.path}
+                    >
+                      {dir.name}
+                    </NavLink>
+                    <button
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setShowDeleteDialog(true);
+                      }}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded-full p-1 opacity-0 hover:bg-gray-100 group-hover:opacity-100"
+                    >
+                      <X className="h-4 w-4 text-gray-500 hover:text-red-600" />
+                    </button>
 
                     <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
                       <AlertDialogContent>
