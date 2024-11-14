@@ -19,15 +19,6 @@ import { CSS } from "@dnd-kit/utilities";
 import { useFetcher } from "react-router";
 
 import type { Route } from "./+types.upload";
-import { Button } from "~/components/ui/button";
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSeparator,
-  ContextMenuTrigger,
-} from "~/components/ui/context-menu";
-import { Modal } from "~/components/ui/modal";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +30,15 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
+import { Button } from "~/components/ui/button";
+import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "~/components/ui/context-menu";
+import { Modal } from "~/components/ui/modal";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const directoryPath = path.join(process.cwd(), "uploads", params.directory);
@@ -104,39 +104,37 @@ function SortableImage({
   };
 
   return (
-    <ContextMenu>
-      <ContextMenuTrigger>
-        <div
-          ref={setNodeRef}
-          style={style}
-          {...attributes}
-          {...listeners}
-          className={`aspect-square cursor-pointer select-none overflow-hidden rounded-lg border ${
-            isSelected ? "ring-2 ring-blue-500" : ""
-          }`}
-        >
-          <div className="h-full w-full">
-            <img
-              src={image.path}
-              alt={image.name}
-              className="pointer-events-none h-full w-full object-cover"
-            />
+    <AlertDialog>
+      <ContextMenu>
+        <ContextMenuTrigger>
+          <div
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+            className={`aspect-square cursor-pointer select-none overflow-hidden rounded-lg border ${
+              isSelected ? "ring-2 ring-blue-500" : ""
+            }`}
+          >
+            <div className="h-full w-full">
+              <img
+                src={image.path}
+                alt={image.name}
+                className="pointer-events-none h-full w-full object-cover"
+              />
+            </div>
           </div>
-        </div>
-      </ContextMenuTrigger>
-      <ContextMenuContent>
-        <ContextMenuItem onClick={() => onClick({ ctrlKey: false } as React.MouseEvent)}>
-          View Image
-        </ContextMenuItem>
-        <ContextMenuItem onClick={() => onClick({ ctrlKey: true } as React.MouseEvent)}>
-          {isSelected ? "Deselect" : "Select"}
-        </ContextMenuItem>
-        <ContextMenuSeparator />
-        <AlertDialog>
+        </ContextMenuTrigger>
+        <ContextMenuContent>
+          <ContextMenuItem onClick={() => onClick({ ctrlKey: false } as React.MouseEvent)}>
+            View Image
+          </ContextMenuItem>
+          <ContextMenuItem onClick={() => onClick({ ctrlKey: true } as React.MouseEvent)}>
+            {isSelected ? "Deselect" : "Select"}
+          </ContextMenuItem>
+          <ContextMenuSeparator />
           <AlertDialogTrigger asChild>
-            <ContextMenuItem className="text-red-600 focus:text-red-600">
-              Delete
-            </ContextMenuItem>
+            <ContextMenuItem className="text-red-600 focus:text-red-600">Delete</ContextMenuItem>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
@@ -161,9 +159,9 @@ function SortableImage({
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialog>
-      </ContextMenuContent>
-    </ContextMenu>
+        </ContextMenuContent>
+      </ContextMenu>
+    </AlertDialog>
   );
 }
 
