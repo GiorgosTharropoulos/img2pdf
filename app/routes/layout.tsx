@@ -11,9 +11,6 @@ export default function Layout() {
           <main className="flex-1">
             <Outlet />
           </main>
-          <footer className="bg-gray-800 p-4 text-center text-white">
-            <p>&copy; 2023 My Website</p>
-          </footer>
         </div>
       </div>
     </div>
