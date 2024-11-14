@@ -16,8 +16,8 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { degrees, PDFDocument } from "pdf-lib";
 import { useFetcher } from "react-router";
+import { generatePDFFromImages } from "~/lib/pdf";
 
 import type { Route } from "./+types.upload";
 import {
@@ -278,68 +278,15 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
           <Button
             className="self-end"
             onClick={async () => {
-              const imagesToConvert =
-                selectedImages.size > 0
-                  ? orderedImages.filter((img) => selectedImages.has(img.path))
-                  : orderedImages;
+              const imagesToConvert = selectedImages.size > 0
+                ? orderedImages.filter((img) => selectedImages.has(img.path))
+                : orderedImages;
 
-              const pdfDoc = await PDFDocument.create();
-
-              for (const image of imagesToConvert) {
-                const response = await fetch(image.path);
-                const imageBytes = await response.arrayBuffer();
-
-                let pdfImage;
-                if (image.path.endsWith(".png")) {
-                  pdfImage = await pdfDoc.embedPng(imageBytes);
-                } else {
-                  pdfImage = await pdfDoc.embedJpg(imageBytes);
-                }
-
-                const page = pdfDoc.addPage(pageSize === "A4" ? [595, 842] : [612, 792]);
-                if (orientation === "landscape") {
-                  page.setRotation(degrees(90));
-                }
-
-                let { width, height } = page.getSize();
-                
-                // If landscape, swap width and height for calculations
-                if (orientation === "landscape") {
-                  [width, height] = [height, width];
-                }
-                
-                const margin = 40; // 40 point margins
-                const maxWidth = width - (margin * 2);
-                const maxHeight = height - (margin * 2);
-                
-                const imageAspectRatio = pdfImage.width / pdfImage.height;
-                const pageAspectRatio = maxWidth / maxHeight;
-                
-                let drawWidth, drawHeight;
-                
-                if (imageAspectRatio > pageAspectRatio) {
-                  // Image is wider than page proportion
-                  drawWidth = maxWidth;
-                  drawHeight = drawWidth / imageAspectRatio;
-                } else {
-                  // Image is taller than page proportion
-                  drawHeight = maxHeight;
-                  drawWidth = drawHeight * imageAspectRatio;
-                }
-                
-                // Calculate centered position
-                const x = (width - drawWidth) / 2;
-                const y = (height - drawHeight) / 2;
-                
-                page.drawImage(pdfImage, {
-                  x,
-                  y,
-                  width: drawWidth,
-                  height: drawHeight,
-                });
-              }
-
-              const pdfBytes = await pdfDoc.save();
+              const pdfBytes = await generatePDFFromImages(imagesToConvert, {
+                pageSize,
+                orientation,
+                quality,
+              });
               const blob = new Blob([pdfBytes], { type: "application/pdf" });
               const url = URL.createObjectURL(blob);
               const link = document.createElement("a");
