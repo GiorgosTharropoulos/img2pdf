@@ -1,13 +1,12 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { useState } from "react";
-import type { PDFGenerationOptions } from "~/lib/types";
-import { DEFAULT_PDF_OPTIONS } from "~/lib/types";
 import { X } from "lucide-react";
 import { NavLink, Outlet, useFetcher, useNavigate, useParams } from "react-router";
 import invariant from "tiny-invariant";
 
 import type { Route } from "./+types.uploads";
+import type { PDFGenerationOptions } from "~/lib/types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -18,6 +17,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
+import { DEFAULT_PDF_OPTIONS } from "~/lib/types";
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();

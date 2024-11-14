@@ -1,10 +1,11 @@
-import { PDFDocument, degrees } from "pdf-lib";
+import { degrees, PDFDocument } from "pdf-lib";
+
 import type { ImageFile, PDFGenerationOptions } from "./types";
 import { PAGE_SIZES } from "./types";
 
 export async function generatePDFFromImages(
   images: ImageFile[],
-  options: PDFGenerationOptions
+  options: PDFGenerationOptions,
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
 
@@ -29,29 +30,30 @@ export async function generatePDFFromImages(
     if (isLandscape) {
       [width, height] = [height, width];
     }
-    
+
     // Calculate available space
-    const maxWidth = width - (options.margin * 2);
-    const maxHeight = height - (options.margin * 2);
-    
+    const maxWidth = width - options.margin * 2;
+    const maxHeight = height - options.margin * 2;
+
     // Calculate scaling
     const imageAspectRatio = pdfImage.width / pdfImage.height;
     const pageAspectRatio = maxWidth / maxHeight;
-    
-    const { drawWidth, drawHeight } = imageAspectRatio > pageAspectRatio
-      ? {
-          drawWidth: maxWidth,
-          drawHeight: maxWidth / imageAspectRatio,
-        }
-      : {
-          drawHeight: maxHeight,
-          drawWidth: maxHeight * imageAspectRatio,
-        };
+
+    const { drawWidth, drawHeight } =
+      imageAspectRatio > pageAspectRatio
+        ? {
+            drawWidth: maxWidth,
+            drawHeight: maxWidth / imageAspectRatio,
+          }
+        : {
+            drawHeight: maxHeight,
+            drawWidth: maxHeight * imageAspectRatio,
+          };
 
     // Center the image
     const x = options.margin + (maxWidth - drawWidth) / 2;
     const y = options.margin + (maxHeight - drawHeight) / 2;
-    
+
     page.drawImage(pdfImage, {
       x,
       y,
