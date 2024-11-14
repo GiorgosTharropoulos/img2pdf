@@ -15,7 +15,10 @@ const schema = z.object({
   directoryName: z
     .string()
     .min(1, "Directory name is required")
-    .regex(/^[a-zA-Z0-9-_]+$/, "Directory name can only contain letters, numbers, hyphens and underscores"),
+    .regex(
+      /^[a-zA-Z0-9-_]+$/,
+      "Directory name can only contain letters, numbers, hyphens and underscores",
+    ),
   files: z
     .array(z.instanceof(File))
     .min(1, "At least one file is required")
@@ -59,27 +62,27 @@ export default function Home({ actionData }: Route.ComponentProps) {
   });
 
   return (
-    <div className="container mx-auto mt-4 flex-1">
+    <div className="container mx-auto mt-4 flex-1 p-6">
       <Form method="POST" {...getFormProps(form)} encType="multipart/form-data">
-        <Field className="flex-1">
-          <Label htmlFor={fields.directoryName.id}>Directory Name</Label>
-          <InputConform meta={fields.directoryName} type="text" />
-          {fields.directoryName.errors && (
-            <FieldError id={fields.directoryName.errorId}>
-              {fields.directoryName.errors}
-            </FieldError>
-          )}
-        </Field>
-        <Field className="flex-1">
-          <Label htmlFor={fields.files.id}>Name</Label>
-          <InputConform meta={fields.files} type="file" multiple />
-          {fields.files.errors && (
-            <FieldError id={fields.files.errorId}>{fields.files.errors}</FieldError>
-          )}
-        </Field>
-        <Button className="mt-2" type="submit">
-          Submit
-        </Button>
+        <div className="space-y-4">
+          <Field className="flex-1">
+            <Label htmlFor={fields.directoryName.id}>Directory Name</Label>
+            <InputConform meta={fields.directoryName} type="text" />
+            {fields.directoryName.errors && (
+              <FieldError id={fields.directoryName.errorId}>
+                {fields.directoryName.errors}
+              </FieldError>
+            )}
+          </Field>
+          <Field className="flex-1">
+            <Label htmlFor={fields.files.id}>Name</Label>
+            <InputConform meta={fields.files} type="file" multiple />
+            {fields.files.errors && (
+              <FieldError id={fields.files.errorId}>{fields.files.errors}</FieldError>
+            )}
+          </Field>
+          <Button type="submit">Submit</Button>
+        </div>
       </Form>
     </div>
   );

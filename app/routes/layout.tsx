@@ -1,5 +1,4 @@
-import { Moon, Sun } from "lucide-react";
-import { Link, Outlet } from "react-router";
+import { Outlet } from "react-router";
 
 import { SiteHeader } from "~/components/site-header";
 
