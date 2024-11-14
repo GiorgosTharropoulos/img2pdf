@@ -301,20 +301,39 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
                   page.setRotation(degrees(90));
                 }
 
-                const { width, height } = page.getSize();
-                const aspectRatio = pdfImage.width / pdfImage.height;
-
-                let drawWidth = width - 40;
-                let drawHeight = drawWidth / aspectRatio;
-
-                if (drawHeight > height - 40) {
-                  drawHeight = height - 40;
-                  drawWidth = drawHeight * aspectRatio;
+                let { width, height } = page.getSize();
+                
+                // If landscape, swap width and height for calculations
+                if (orientation === "landscape") {
+                  [width, height] = [height, width];
                 }
-
+                
+                const margin = 40; // 40 point margins
+                const maxWidth = width - (margin * 2);
+                const maxHeight = height - (margin * 2);
+                
+                const imageAspectRatio = pdfImage.width / pdfImage.height;
+                const pageAspectRatio = maxWidth / maxHeight;
+                
+                let drawWidth, drawHeight;
+                
+                if (imageAspectRatio > pageAspectRatio) {
+                  // Image is wider than page proportion
+                  drawWidth = maxWidth;
+                  drawHeight = drawWidth / imageAspectRatio;
+                } else {
+                  // Image is taller than page proportion
+                  drawHeight = maxHeight;
+                  drawWidth = drawHeight * imageAspectRatio;
+                }
+                
+                // Calculate centered position
+                const x = (width - drawWidth) / 2;
+                const y = (height - drawHeight) / 2;
+                
                 page.drawImage(pdfImage, {
-                  x: (width - drawWidth) / 2,
-                  y: (height - drawHeight) / 2,
+                  x,
+                  y,
                   width: drawWidth,
                   height: drawHeight,
                 });
