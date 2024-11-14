@@ -36,11 +36,13 @@ export default function Uploads({ loaderData }: Route.ComponentProps) {
           ) : (
             <div className="grid gap-4">
               {directories.map((dir) => (
-                <div key={dir.path} className="rounded-lg border p-4 hover:bg-gray-50">
-                  <NavLink className="[&.active]:underline" to={`/uploads/${dir.name}`}>
-                    {dir.name}
-                  </NavLink>
-                </div>
+                <NavLink
+                  key={dir.path}
+                  className="rounded-lg border p-4 hover:bg-gray-50 [&.active]:underline"
+                  to={`/uploads/${dir.name}`}
+                >
+                  {dir.name}
+                </NavLink>
               ))}
             </div>
           )}
