@@ -19,7 +19,7 @@ export async function generatePDFFromImages(
       : await pdfDoc.embedJpg(imageBytes);
 
     // Create and configure page
-    const page = pdfDoc.addPage(PAGE_SIZES[options.pageSize]);
+    const page = pdfDoc.addPage(PAGE_SIZES[options.pageSize] as [number, number]);
     const isLandscape = options.orientation === "landscape";
     if (isLandscape) {
       page.setRotation(degrees(90));

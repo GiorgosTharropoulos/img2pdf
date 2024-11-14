@@ -7,8 +7,7 @@
     "dev:typegen": "react-router typegen --watch",
     "build": "react-router build",
     "start": "NODE_ENV=production react-router-serve ./build/server/index.js",
-    "format": "prettier --ignore-path .gitignore .",
-    "lint": "eslint .",
+    "format": "prettier --write .",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
