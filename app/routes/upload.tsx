@@ -3,8 +3,8 @@ import path from "path";
 import { useCallback, useState } from "react";
 
 import type { Route } from "./+types.upload";
-import { Modal } from "~/components/ui/modal";
 import { Button } from "~/components/ui/button";
+import { Modal } from "~/components/ui/modal";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const directoryPath = path.join(process.cwd(), "uploads", params.directory);
@@ -31,7 +31,7 @@ export async function action({ request, params }: Route.ActionArgs) {}
 export default function Upload({ loaderData }: Route.ComponentProps) {
   const { images } = loaderData;
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
-  const [modalImage, setModalImage] = useState<string | null>(null);
+  const [modalImage, setModalImage] = useState<string | undefined>();
 
   const toggleImage = useCallback((imagePath: string) => {
     setSelectedImages((prev) => {
@@ -54,14 +54,14 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
   };
 
   const nextImage = () => {
-    const imageArray = images.map(img => img.path);
+    const imageArray = images.map((img) => img.path);
     const currentIndex = imageArray.indexOf(modalImage!);
     const nextIndex = (currentIndex + 1) % imageArray.length;
     setModalImage(imageArray[nextIndex]);
   };
 
   const previousImage = () => {
-    const imageArray = images.map(img => img.path);
+    const imageArray = images.map((img) => img.path);
     const currentIndex = imageArray.indexOf(modalImage!);
     const prevIndex = (currentIndex - 1 + imageArray.length) % imageArray.length;
     setModalImage(imageArray[prevIndex]);
@@ -78,7 +78,6 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
           {images.map((image) => (
             <div
               key={image.path}
-              className="aspect-square cursor-pointer overflow-hidden rounded-lg border"
               onClick={(e) => handleImageClick(image.path, e)}
               className={`aspect-square cursor-pointer overflow-hidden rounded-lg border ${
                 selectedImages.has(image.path) ? "ring-2 ring-blue-500" : ""
@@ -89,15 +88,15 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
           ))}
         </div>
       )}
-      <Modal 
-        isOpen={!!modalImage} 
-        onClose={() => setModalImage(null)}
+      <Modal
+        isOpen={!!modalImage}
+        onClose={() => setModalImage(undefined)}
         onNext={nextImage}
         onPrevious={previousImage}
       >
         {modalImage && (
-          <div className="flex flex-col items-center" style={{ height: '85vh' }}>
-            <div className="flex-1 flex items-center justify-center w-full">
+          <div className="flex flex-col items-center" style={{ height: "85vh" }}>
+            <div className="flex w-full flex-1 items-center justify-center">
               <img
                 src={modalImage}
                 alt="Selected image"
@@ -105,8 +104,12 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
               />
             </div>
             <div className="flex gap-4 py-4">
-              <Button onClick={previousImage} variant="outline">Previous</Button>
-              <Button onClick={nextImage} variant="outline">Next</Button>
+              <Button onClick={previousImage} variant="outline">
+                Previous
+              </Button>
+              <Button onClick={nextImage} variant="outline">
+                Next
+              </Button>
             </div>
           </div>
         )}
