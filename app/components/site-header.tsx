@@ -10,8 +10,11 @@ export function SiteHeader() {
         <div className="flex flex-1 items-center justify-between gap-2 md:justify-end">
           <nav className="flex items-center gap-0.5">
             <Button variant="ghost" size="icon" className="h-8 w-8 px-0">
-              {/* TODO: Change to the repo link */}
-              <a href="" target="_blank" rel="noreferrer">
+              <a
+                href="https://github.com/GiorgosTharropoulos/img2pdf"
+                target="_blank"
+                rel="noreferrer"
+              >
                 <GithubIcon className="size-4" />
                 <span className="sr-only">GitHub</span>
               </a>
