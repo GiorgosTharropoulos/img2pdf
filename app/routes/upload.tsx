@@ -67,13 +67,16 @@ function SortableImage({
       style={style}
       {...attributes}
       {...listeners}
-      onClick={onClick}
-      data-no-dnd="true"
       className={`aspect-square cursor-pointer overflow-hidden rounded-lg border select-none ${
         isSelected ? "ring-2 ring-blue-500" : ""
       }`}
     >
-      <img src={image.path} alt={image.name} className="h-full w-full object-cover" />
+      <div 
+        className="h-full w-full"
+        onClick={onClick}
+      >
+        <img src={image.path} alt={image.name} className="h-full w-full object-cover pointer-events-none" />
+      </div>
     </div>
   );
 }
@@ -107,13 +110,10 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
   }, []);
 
   const handleImageClick = (imagePath: string, event: React.MouseEvent) => {
-    const target = event.target as HTMLElement;
-    if (target.closest('[data-no-dnd="true"]')) {
-      if (event.ctrlKey || event.metaKey) {
-        toggleImage(imagePath);
-      } else {
-        setModalImage(imagePath);
-      }
+    if (event.ctrlKey || event.metaKey) {
+      toggleImage(imagePath);
+    } else {
+      setModalImage(imagePath);
     }
   };
 
