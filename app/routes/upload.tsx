@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { useCallback, useEffect, useState } from "react";
+import { useFetcher } from "@remix-run/react";
 import {
   ContextMenu,
   ContextMenuContent,
@@ -48,7 +49,29 @@ export async function loader({ params }: Route.LoaderArgs) {
   }
 }
 
-export async function action({ request, params }: Route.ActionArgs) {}
+export async function action({ request, params }: Route.ActionArgs) {
+  const formData = await request.formData();
+  const intent = formData.get("intent");
+
+  if (intent === "delete") {
+    const imagePath = formData.get("imagePath") as string;
+    if (!imagePath) {
+      throw new Error("Image path is required");
+    }
+
+    const fullPath = path.join(process.cwd(), imagePath.replace(/^\/uploads/, "uploads"));
+    
+    try {
+      await fs.unlink(fullPath);
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting file:", error);
+      throw new Error("Failed to delete image");
+    }
+  }
+
+  return null;
+}
 
 function SortableImage({
   image,
@@ -92,12 +115,26 @@ function SortableImage({
         <ContextMenuItem onClick={() => onClick({ ctrlKey: true } as React.MouseEvent)}>
           {isSelected ? "Deselect" : "Select"}
         </ContextMenuItem>
+        <ContextMenuSeparator />
+        <ContextMenuItem
+          className="text-red-600 focus:text-red-600"
+          onClick={(e) => {
+            e.preventDefault();
+            const form = new FormData();
+            form.append("intent", "delete");
+            form.append("imagePath", image.path);
+            fetcher.submit(form, { method: "post" });
+          }}
+        >
+          Delete
+        </ContextMenuItem>
       </ContextMenuContent>
     </ContextMenu>
   );
 }
 
 export default function Upload({ loaderData }: Route.ComponentProps) {
+  const fetcher = useFetcher();
   const [orderedImages, setOrderedImages] = useState(loaderData.images);
   
   useEffect(() => {
