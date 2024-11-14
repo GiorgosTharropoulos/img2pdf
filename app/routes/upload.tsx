@@ -233,9 +233,9 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Images</h1>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1">
             <label htmlFor="pageSize" className="text-sm font-medium">
-              Page Size:
+              Page Size
             </label>
             <select
               id="pageSize"
@@ -247,9 +247,9 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
               <option value="Letter">Letter</option>
             </select>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1">
             <label htmlFor="orientation" className="text-sm font-medium">
-              Orientation:
+              Orientation
             </label>
             <select
               id="orientation"
@@ -261,9 +261,9 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
               <option value="landscape">Landscape</option>
             </select>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-col gap-1">
             <label htmlFor="quality" className="text-sm font-medium">
-              Quality:
+              Quality
             </label>
             <input
               id="quality"
