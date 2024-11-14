@@ -89,7 +89,12 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
           ))}
         </div>
       )}
-      <Modal isOpen={!!modalImage} onClose={() => setModalImage(null)}>
+      <Modal 
+        isOpen={!!modalImage} 
+        onClose={() => setModalImage(null)}
+        onNext={nextImage}
+        onPrevious={previousImage}
+      >
         {modalImage && (
           <div className="flex flex-col items-center" style={{ height: '85vh' }}>
             <div className="flex-1 flex items-center justify-center w-full">
