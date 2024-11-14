@@ -232,32 +232,50 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
     <div className="">
       <div className="mb-6 flex items-center justify-between">
         <h1 className="text-2xl font-bold">Images</h1>
-        <div className="flex gap-4">
-          <select
-            value={pageSize}
-            onChange={(e) => setPageSize(e.target.value as "A4" | "Letter")}
-            className="rounded-md border px-3 py-1"
-          >
-            <option value="A4">A4</option>
-            <option value="Letter">Letter</option>
-          </select>
-          <select
-            value={orientation}
-            onChange={(e) => setOrientation(e.target.value as "portrait" | "landscape")}
-            className="rounded-md border px-3 py-1"
-          >
-            <option value="portrait">Portrait</option>
-            <option value="landscape">Landscape</option>
-          </select>
-          <input
-            type="number"
-            min="0.1"
-            max="1"
-            step="0.1"
-            value={quality}
-            onChange={(e) => setQuality(Number(e.target.value))}
-            className="w-20 rounded-md border px-3 py-1"
-          />
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            <label htmlFor="pageSize" className="text-sm font-medium">
+              Page Size:
+            </label>
+            <select
+              id="pageSize"
+              value={pageSize}
+              onChange={(e) => setPageSize(e.target.value as "A4" | "Letter")}
+              className="rounded-md border px-3 py-1"
+            >
+              <option value="A4">A4</option>
+              <option value="Letter">Letter</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="orientation" className="text-sm font-medium">
+              Orientation:
+            </label>
+            <select
+              id="orientation"
+              value={orientation}
+              onChange={(e) => setOrientation(e.target.value as "portrait" | "landscape")}
+              className="rounded-md border px-3 py-1"
+            >
+              <option value="portrait">Portrait</option>
+              <option value="landscape">Landscape</option>
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="quality" className="text-sm font-medium">
+              Quality:
+            </label>
+            <input
+              id="quality"
+              type="number"
+              min="0.1"
+              max="1"
+              step="0.1"
+              value={quality}
+              onChange={(e) => setQuality(Number(e.target.value))}
+              className="w-20 rounded-md border px-3 py-1"
+            />
+          </div>
           <Button
             onClick={async () => {
               const imagesToConvert = selectedImages.size > 0
