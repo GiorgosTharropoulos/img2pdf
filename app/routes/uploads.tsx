@@ -1,8 +1,11 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { X } from "lucide-react";
 import { useState } from "react";
+import { X } from "lucide-react";
 import { NavLink, Outlet, useFetcher, useNavigate, useParams } from "react-router";
+import invariant from "tiny-invariant";
+
+import type { Route } from "./+types.uploads";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,19 +17,15 @@ import {
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
 
-import type { Route } from "./+types.uploads";
-
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
   const intent = formData.get("intent");
 
   if (intent === "deleteDirectory") {
-    const dirPath = formData.get("dirPath") as string;
-    if (!dirPath) {
-      throw new Error("Directory path is required");
-    }
+    const dirPath = formData.get("dirPath");
+    invariant(dirPath, "Directory path is required");
 
-    const fullPath = path.join(process.cwd(), dirPath.replace(/^\/uploads/, "uploads"));
+    const fullPath = path.join(process.cwd(), (dirPath as string).replace(/^\/uploads/, "uploads"));
 
     try {
       await fs.rm(fullPath, { recursive: true });
@@ -98,8 +97,8 @@ export default function Uploads({ loaderData }: Route.ComponentProps) {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Delete Directory?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This will permanently delete the directory "{dir.name}" and all its contents.
-                            This action cannot be undone.
+                            This will permanently delete the directory "{dir.name}" and all its
+                            contents. This action cannot be undone.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
@@ -112,10 +111,10 @@ export default function Uploads({ loaderData }: Route.ComponentProps) {
                               form.append("dirPath", dir.path);
                               const navigate = useNavigate();
                               const params = useParams();
-                              
+
                               fetcher.submit(form, { method: "post" });
                               setShowDeleteDialog(false);
-                              
+
                               // If we're deleting the currently open directory, navigate to /uploads
                               if (params.directory === dir.name) {
                                 navigate("/uploads");
