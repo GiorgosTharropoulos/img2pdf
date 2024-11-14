@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   closestCenter,
   DndContext,
@@ -84,6 +84,10 @@ function SortableImage({
 
 export default function Upload({ loaderData }: Route.ComponentProps) {
   const [orderedImages, setOrderedImages] = useState(loaderData.images);
+  
+  useEffect(() => {
+    setOrderedImages(loaderData.images);
+  }, [loaderData.images]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [modalImage, setModalImage] = useState<string | undefined>();
 
