@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { NavLink } from "react-router";
+import { NavLink, Outlet } from "react-router";
 
 import type { Route } from "./+types.uploads";
 
@@ -28,20 +28,27 @@ export default function Uploads({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="container mx-auto py-8">
-      <h1 className="mb-6 text-2xl font-bold">Uploaded Directories</h1>
-      {directories.length === 0 ? (
-        <p className="text-gray-500">No uploads found</p>
-      ) : (
-        <div className="grid gap-4">
-          {directories.map((dir) => (
-            <div key={dir.path} className="rounded-lg border p-4 hover:bg-gray-50">
-              <NavLink className="[&.active]:underline" to={`/uploads/${dir.name}`}>
-                {dir.name}
-              </NavLink>
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[300px_1fr]">
+        <div className="space-y-6">
+          <h1 className="text-2xl font-bold">Uploaded Directories</h1>
+          {directories.length === 0 ? (
+            <p className="text-gray-500">No uploads found</p>
+          ) : (
+            <div className="grid gap-4">
+              {directories.map((dir) => (
+                <div key={dir.path} className="rounded-lg border p-4 hover:bg-gray-50">
+                  <NavLink className="[&.active]:underline" to={`/uploads/${dir.name}`}>
+                    {dir.name}
+                  </NavLink>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
-      )}
+        <div className="min-h-[200px]">
+          <Outlet />
+        </div>
+      </div>
     </div>
   );
 }

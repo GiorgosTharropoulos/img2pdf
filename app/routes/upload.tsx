@@ -25,4 +25,24 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {}
 
-export default function Upload({ params, loaderData }: Route.ComponentProps) {}
+export default function Upload({ loaderData }: Route.ComponentProps) {
+  const { images } = loaderData;
+
+  return (
+    <div className="">
+      <h1 className="mb-6 text-2xl font-bold">Images</h1>
+
+      {images.length === 0 ? (
+        <p className="text-gray-500">No images found in this directory</p>
+      ) : (
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+          {images.map((image) => (
+            <div key={image.path} className="aspect-square overflow-hidden rounded-lg border">
+              <img src={image.path} alt={image.name} className="h-full w-full object-cover" />
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
