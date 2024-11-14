@@ -6,7 +6,6 @@ import { NavLink, Outlet, useFetcher, useNavigate, useParams } from "react-route
 import invariant from "tiny-invariant";
 
 import type { Route } from "./+types.uploads";
-import type { PDFGenerationOptions } from "~/lib/types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +16,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "~/components/ui/alert-dialog";
-import { DEFAULT_PDF_OPTIONS } from "~/lib/types";
 
 export async function action({ request }: Route.ActionArgs) {
   const formData = await request.formData();
@@ -62,6 +60,10 @@ export async function loader() {
 
 export default function Uploads({ loaderData }: Route.ComponentProps) {
   const { directories } = loaderData;
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const fetcher = useFetcher();
+  const navigate = useNavigate();
+  const params = useParams();
 
   return (
     <div className="container mx-auto py-8">
@@ -73,11 +75,6 @@ export default function Uploads({ loaderData }: Route.ComponentProps) {
           ) : (
             <div className="grid gap-4">
               {directories.map((dir) => {
-                const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-                const fetcher = useFetcher();
-                const navigate = useNavigate();
-                const params = useParams();
-
                 return (
                   <div key={dir.path} className="group relative">
                     <NavLink
