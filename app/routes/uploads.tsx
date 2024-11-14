@@ -73,6 +73,8 @@ export default function Uploads({ loaderData }: Route.ComponentProps) {
               {directories.map((dir) => {
                 const [showDeleteDialog, setShowDeleteDialog] = useState(false);
                 const fetcher = useFetcher();
+                const navigate = useNavigate();
+                const params = useParams();
 
                 return (
                   <div key={dir.path} className="group relative">
@@ -109,9 +111,6 @@ export default function Uploads({ loaderData }: Route.ComponentProps) {
                               const form = new FormData();
                               form.append("intent", "deleteDirectory");
                               form.append("dirPath", dir.path);
-                              const navigate = useNavigate();
-                              const params = useParams();
-
                               fetcher.submit(form, { method: "post" });
                               setShowDeleteDialog(false);
 
