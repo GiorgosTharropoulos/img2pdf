@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { NavLink, Outlet } from "react-router-dom";
+import { NavLink, Outlet } from "react-router";
 
 import type { Route } from "./+types.uploads";
 
