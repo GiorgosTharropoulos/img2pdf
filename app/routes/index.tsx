@@ -23,8 +23,14 @@ const schema = z.object({
     .array(z.instanceof(File))
     .min(1, "At least one file is required")
     .refine(
-      (files) => files.every((file) => file.type.startsWith("image/")),
-      "All files must be images",
+      (files) =>
+        files.every(
+          (file) =>
+            file.type.startsWith("image/") &&
+            !file.type.includes("svg") &&
+            !file.name.toLowerCase().endsWith(".svg")
+        ),
+      "All files must be images (SVG files are not supported)",
     ),
 });
 
