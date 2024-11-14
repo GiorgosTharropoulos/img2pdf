@@ -1,9 +1,9 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { useCallback, useState, useMemo } from "react";
+import { useCallback, useState } from "react";
 import {
-  DndContext,
   closestCenter,
+  DndContext,
   KeyboardSensor,
   PointerSensor,
   useSensor,
@@ -43,18 +43,18 @@ export async function loader({ params }: Route.LoaderArgs) {
 
 export async function action({ request, params }: Route.ActionArgs) {}
 
-function SortableImage({ image, isSelected, onClick }: { 
-  image: { path: string; name: string }; 
+function SortableImage({
+  image,
+  isSelected,
+  onClick,
+}: {
+  image: { path: string; name: string };
   isSelected: boolean;
   onClick: (e: React.MouseEvent) => void;
 }) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-  } = useSortable({ id: image.path });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({
+    id: image.path,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -86,7 +86,7 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
       coordinateGetter: sortableKeyboardCoordinates,
-    })
+    }),
   );
 
   const toggleImage = useCallback((imagePath: string) => {
@@ -110,14 +110,14 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
   };
 
   const nextImage = () => {
-    const imageArray = images.map((img) => img.path);
+    const imageArray = orderedImages.map((img) => img.path);
     const currentIndex = imageArray.indexOf(modalImage!);
     const nextIndex = (currentIndex + 1) % imageArray.length;
     setModalImage(imageArray[nextIndex]);
   };
 
   const previousImage = () => {
-    const imageArray = images.map((img) => img.path);
+    const imageArray = orderedImages.map((img) => img.path);
     const currentIndex = imageArray.indexOf(modalImage!);
     const prevIndex = (currentIndex - 1 + imageArray.length) % imageArray.length;
     setModalImage(imageArray[prevIndex]);
@@ -143,7 +143,7 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
             }
           }}
         >
-          <SortableContext items={orderedImages.map(img => img.path)}>
+          <SortableContext items={orderedImages.map((img) => img.path)}>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
               {orderedImages.map((image) => (
                 <SortableImage
