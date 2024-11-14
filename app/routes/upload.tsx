@@ -189,6 +189,32 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const generationStartTime = useRef<number | null>(null);
 
+  const handleGeneratePDF = async () => {
+    try {
+      setIsGenerating(true);
+      generationStartTime.current = Date.now();
+
+      const imagesToConvert =
+        selectedImages.size > 0
+          ? orderedImages.filter((img) => selectedImages.has(img.path))
+          : orderedImages;
+
+      const pdfBytes = await generatePDFFromImages(imagesToConvert, pdfOptions);
+      
+      // Create and trigger download
+      const blob = new Blob([pdfBytes], { type: "application/pdf" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "images.pdf";
+      link.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setIsGenerating(false);
+      generationStartTime.current = null;
+    }
+  };
+
   const updatePdfOption = <K extends keyof PDFGenerationOptions>(
     key: K,
     value: PDFGenerationOptions[K],
@@ -305,29 +331,7 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
           <Button
             className="self-end"
             disabled={isGenerating}
-            onClick={async () => {
-              try {
-                setIsGenerating(true);
-                generationStartTime.current = Date.now();
-
-                const imagesToConvert =
-                  selectedImages.size > 0
-                    ? orderedImages.filter((img) => selectedImages.has(img.path))
-                    : orderedImages;
-
-                const pdfBytes = await generatePDFFromImages(imagesToConvert, pdfOptions);
-                const blob = new Blob([pdfBytes], { type: "application/pdf" });
-                const url = URL.createObjectURL(blob);
-                const link = document.createElement("a");
-                link.href = url;
-                link.download = "images.pdf";
-                link.click();
-                URL.revokeObjectURL(url);
-              } finally {
-                setIsGenerating(false);
-                generationStartTime.current = null;
-              }
-            }}
+            onClick={handleGeneratePDF}
           >
             {isGenerating && Date.now() - (generationStartTime.current || 0) > 500 ? (
               <span className="flex items-center gap-2">
