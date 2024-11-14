@@ -1,0 +1,56 @@
+{
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "run-p dev:*",
+    "dev:react-router": "react-router dev",
+    "dev:typegen": "react-router typegen --watch",
+    "build": "react-router build",
+    "start": "NODE_ENV=production react-router-serve ./build/server/index.js",
+    "format": "prettier ."
+  },
+  "dependencies": {
+    "@conform-to/react": "^1.2.2",
+    "@conform-to/zod": "^1.2.2",
+    "@dnd-kit/core": "^6.1.0",
+    "@dnd-kit/sortable": "^8.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@radix-ui/react-label": "^2.1.0",
+    "@radix-ui/react-slot": "^1.1.0",
+    "@react-router/node": "^7.0.0-pre.5",
+    "@react-router/serve": "^7.0.0-pre.5",
+    "class-variance-authority": "^0.7.0",
+    "clsx": "^2.1.1",
+    "isbot": "^5.1.17",
+    "lucide-react": "^0.456.0",
+    "react": "19.0.0-rc-1460d67c-20241003",
+    "react-dom": "19.0.0-rc-1460d67c-20241003",
+    "react-router": "^7.0.0-pre.5",
+    "tailwind-merge": "^2.5.4",
+    "tailwindcss-animate": "^1.0.7",
+    "tiny-invariant": "^1.3.3",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@ianvs/prettier-plugin-sort-imports": "^4.3.1",
+    "@react-router/dev": "^7.0.0-pre.5",
+    "@total-typescript/tsconfig": "^1.0.4",
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc",
+    "autoprefixer": "^10.4.20",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.4.49",
+    "prettier": "^3.3.3",
+    "prettier-plugin-tailwindcss": "^0.6.8",
+    "tailwindcss": "^3.4.14",
+    "typescript": "^5.6.2",
+    "vite": "^5.3.5",
+    "vite-tsconfig-paths": "^5.1.2"
+  },
+  "overrides": {
+    "@types/react": "npm:types-react@rc",
+    "@types/react-dom": "npm:types-react-dom@rc",
+    "react": "19.0.0-rc-1460d67c-20241003",
+    "react-dom": "19.0.0-rc-1460d67c-20241003"
+  }
+}
