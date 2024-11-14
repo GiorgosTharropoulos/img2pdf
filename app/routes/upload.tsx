@@ -28,6 +28,17 @@ import {
   ContextMenuTrigger,
 } from "~/components/ui/context-menu";
 import { Modal } from "~/components/ui/modal";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const directoryPath = path.join(process.cwd(), "uploads", params.directory);
@@ -121,18 +132,36 @@ function SortableImage({
           {isSelected ? "Deselect" : "Select"}
         </ContextMenuItem>
         <ContextMenuSeparator />
-        <ContextMenuItem
-          className="text-red-600 focus:text-red-600"
-          onClick={(e) => {
-            e.preventDefault();
-            const form = new FormData();
-            form.append("intent", "delete");
-            form.append("imagePath", image.path);
-            fetcher.submit(form, { method: "post" });
-          }}
-        >
-          Delete
-        </ContextMenuItem>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <ContextMenuItem className="text-red-600 focus:text-red-600">
+              Delete
+            </ContextMenuItem>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This action cannot be undone. This will permanently delete the image.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={(e) => {
+                  e.preventDefault();
+                  const form = new FormData();
+                  form.append("intent", "delete");
+                  form.append("imagePath", image.path);
+                  fetcher.submit(form, { method: "post" });
+                }}
+                className="bg-red-600 hover:bg-red-700"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </ContextMenuContent>
     </ContextMenu>
   );
