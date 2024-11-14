@@ -38,7 +38,7 @@ export default function Uploads({ loaderData }: Route.ComponentProps) {
               {directories.map((dir) => (
                 <NavLink
                   key={dir.path}
-                  className="rounded-lg border p-4 hover:bg-gray-50 [&.active]:underline"
+                  className="rounded-lg border p-4 hover:bg-gray-50 [&.active]:bg-accent [&.active]:underline"
                   to={`/uploads/${dir.name}`}
                 >
                   {dir.name}
