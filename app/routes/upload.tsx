@@ -28,7 +28,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { Button } from "~/components/ui/button";
 import {
@@ -135,7 +134,7 @@ function SortableImage({
             {isSelected ? "Deselect" : "Select"}
           </ContextMenuItem>
           <ContextMenuSeparator />
-          <ContextMenuItem 
+          <ContextMenuItem
             className="text-red-600 focus:text-red-600"
             onClick={() => setShowDeleteDialog(true)}
           >
