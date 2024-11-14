@@ -1,6 +1,6 @@
 import fs from "fs/promises";
 import path from "path";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import {
   closestCenter,
   DndContext,
@@ -186,6 +186,8 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [modalImage, setModalImage] = useState<string | undefined>();
   const [pdfOptions, setPdfOptions] = useState<PDFGenerationOptions>(DEFAULT_PDF_OPTIONS);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const generationStartTime = useRef<number | null>(null);
 
   const updatePdfOption = <K extends keyof PDFGenerationOptions>(
     key: K,
@@ -302,23 +304,51 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
           </div>
           <Button
             className="self-end"
+            disabled={isGenerating}
             onClick={async () => {
-              const imagesToConvert =
-                selectedImages.size > 0
-                  ? orderedImages.filter((img) => selectedImages.has(img.path))
-                  : orderedImages;
+              try {
+                setIsGenerating(true);
+                generationStartTime.current = Date.now();
 
-              const pdfBytes = await generatePDFFromImages(imagesToConvert, pdfOptions);
-              const blob = new Blob([pdfBytes], { type: "application/pdf" });
-              const url = URL.createObjectURL(blob);
-              const link = document.createElement("a");
-              link.href = url;
-              link.download = "images.pdf";
-              link.click();
-              URL.revokeObjectURL(url);
+                const imagesToConvert =
+                  selectedImages.size > 0
+                    ? orderedImages.filter((img) => selectedImages.has(img.path))
+                    : orderedImages;
+
+                const pdfBytes = await generatePDFFromImages(imagesToConvert, pdfOptions);
+                const blob = new Blob([pdfBytes], { type: "application/pdf" });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = "images.pdf";
+                link.click();
+                URL.revokeObjectURL(url);
+              } finally {
+                setIsGenerating(false);
+                generationStartTime.current = null;
+              }
             }}
           >
-            Generate PDF
+            {isGenerating && Date.now() - (generationStartTime.current || 0) > 500 ? (
+              <span className="flex items-center gap-2">
+                <svg
+                  className="h-4 w-4 animate-spin"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
+                </svg>
+                Generating...
+              </span>
+            ) : (
+              "Generate PDF"
+            )}
           </Button>
         </div>
       </div>
