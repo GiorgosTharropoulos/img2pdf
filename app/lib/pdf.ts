@@ -44,19 +44,23 @@ export async function generatePDFFromImages(
     const imageAspectRatio = pdfImage.width / pdfImage.height;
     const pageAspectRatio = maxWidth / maxHeight;
     
-    let drawWidth: number;
-    let drawHeight: number;
+    // Scale image to fill the page while maintaining aspect ratio
+    let drawWidth = maxWidth;
+    let drawHeight = maxHeight;
     
     if (imageAspectRatio > pageAspectRatio) {
+      // Image is wider than page ratio - fit to width
       drawWidth = maxWidth;
-      drawHeight = drawWidth / imageAspectRatio;
+      drawHeight = maxWidth / imageAspectRatio;
     } else {
+      // Image is taller than page ratio - fit to height
       drawHeight = maxHeight;
-      drawWidth = drawHeight * imageAspectRatio;
+      drawWidth = maxHeight * imageAspectRatio;
     }
-    
-    const x = (width - drawWidth) / 2;
-    const y = (height - drawHeight) / 2;
+
+    // Center the image on the page
+    const x = MARGIN + (maxWidth - drawWidth) / 2;
+    const y = MARGIN + (maxHeight - drawHeight) / 2;
     
     page.drawImage(pdfImage, {
       x,
