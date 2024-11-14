@@ -2,7 +2,7 @@ import { promises as fs } from "fs";
 import path from "path";
 import { X } from "lucide-react";
 import { useState } from "react";
-import { NavLink, Outlet, useFetcher } from "react-router";
+import { NavLink, Outlet, useFetcher, useNavigate, useParams } from "react-router";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -110,8 +110,16 @@ export default function Uploads({ loaderData }: Route.ComponentProps) {
                               const form = new FormData();
                               form.append("intent", "deleteDirectory");
                               form.append("dirPath", dir.path);
+                              const navigate = useNavigate();
+                              const params = useParams();
+                              
                               fetcher.submit(form, { method: "post" });
                               setShowDeleteDialog(false);
+                              
+                              // If we're deleting the currently open directory, navigate to /uploads
+                              if (params.directory === dir.name) {
+                                navigate("/uploads");
+                              }
                             }}
                             className="bg-red-600 hover:bg-red-700"
                           >
