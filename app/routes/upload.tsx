@@ -1,4 +1,4 @@
-import { promises as fs } from "fs";
+import fs from "fs/promises";
 import path from "path";
 import { useCallback, useEffect, useState } from "react";
 import {
@@ -19,6 +19,7 @@ import { CSS } from "@dnd-kit/utilities";
 import { useFetcher } from "react-router";
 
 import type { Route } from "./+types.upload";
+import type { PDFGenerationOptions } from "~/lib/types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,6 +40,7 @@ import {
 } from "~/components/ui/context-menu";
 import { Modal } from "~/components/ui/modal";
 import { generatePDFFromImages } from "~/lib/pdf";
+import { DEFAULT_PDF_OPTIONS } from "~/lib/types";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const directoryPath = path.join(process.cwd(), "uploads", params.directory);
@@ -183,10 +185,14 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
 
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [modalImage, setModalImage] = useState<string | undefined>();
-  const [pageSize, setPageSize] = useState<"A4" | "Letter">("A4");
-  const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait");
-  const [quality, setQuality] = useState<number>(0.8);
-  const [margin, setMargin] = useState<number>(40);
+  const [pdfOptions, setPdfOptions] = useState<PDFGenerationOptions>(DEFAULT_PDF_OPTIONS);
+
+  const updatePdfOption = <K extends keyof PDFGenerationOptions>(
+    key: K,
+    value: PDFGenerationOptions[K],
+  ) => {
+    setPdfOptions((prev) => ({ ...prev, [key]: value }));
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -240,8 +246,8 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
             </label>
             <select
               id="pageSize"
-              value={pageSize}
-              onChange={(e) => setPageSize(e.target.value as "A4" | "Letter")}
+              value={pdfOptions.pageSize}
+              onChange={(e) => updatePdfOption("pageSize", e.target.value as "A4" | "Letter")}
               className="rounded-md border px-3 py-1"
             >
               <option value="A4">A4</option>
@@ -254,8 +260,10 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
             </label>
             <select
               id="orientation"
-              value={orientation}
-              onChange={(e) => setOrientation(e.target.value as "portrait" | "landscape")}
+              value={pdfOptions.orientation}
+              onChange={(e) =>
+                updatePdfOption("orientation", e.target.value as "portrait" | "landscape")
+              }
               className="rounded-md border px-3 py-1"
             >
               <option value="portrait">Portrait</option>
@@ -272,8 +280,8 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
               min="0.1"
               max="1"
               step="0.1"
-              value={quality}
-              onChange={(e) => setQuality(Number(e.target.value))}
+              value={pdfOptions.quality}
+              onChange={(e) => updatePdfOption("quality", Number(e.target.value))}
               className="w-20 rounded-md border px-3 py-1"
             />
           </div>
@@ -287,8 +295,8 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
               min="0"
               max="100"
               step="5"
-              value={margin}
-              onChange={(e) => setMargin(Number(e.target.value))}
+              value={pdfOptions.margin}
+              onChange={(e) => updatePdfOption("margin", Number(e.target.value))}
               className="w-20 rounded-md border px-3 py-1"
             />
           </div>
@@ -300,12 +308,7 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
                   ? orderedImages.filter((img) => selectedImages.has(img.path))
                   : orderedImages;
 
-              const pdfBytes = await generatePDFFromImages(imagesToConvert, {
-                pageSize,
-                orientation,
-                quality,
-                margin,
-              });
+              const pdfBytes = await generatePDFFromImages(imagesToConvert, pdfOptions);
               const blob = new Blob([pdfBytes], { type: "application/pdf" });
               const url = URL.createObjectURL(blob);
               const link = document.createElement("a");

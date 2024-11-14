@@ -1,6 +1,8 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { useState } from "react";
+import type { PDFGenerationOptions } from "~/lib/types";
+import { DEFAULT_PDF_OPTIONS } from "~/lib/types";
 import { X } from "lucide-react";
 import { NavLink, Outlet, useFetcher, useNavigate, useParams } from "react-router";
 import invariant from "tiny-invariant";

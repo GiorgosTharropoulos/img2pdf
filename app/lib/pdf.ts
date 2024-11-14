@@ -1,19 +1,9 @@
 import { PDFDocument, degrees } from "pdf-lib";
-
-interface PDFGenerationOptions {
-  pageSize: "A4" | "Letter";
-  orientation: "portrait" | "landscape";
-  quality: number;
-  margin: number;
-}
-
-const PAGE_SIZES = {
-  A4: [595, 842] as const,
-  Letter: [612, 792] as const,
-};
+import type { ImageFile, PDFGenerationOptions } from "./types";
+import { PAGE_SIZES } from "./types";
 
 export async function generatePDFFromImages(
-  images: Array<{ path: string; name: string }>,
+  images: ImageFile[],
   options: PDFGenerationOptions
 ): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
@@ -22,42 +12,43 @@ export async function generatePDFFromImages(
     const response = await fetch(image.path);
     const imageBytes = await response.arrayBuffer();
 
-    const pdfImage = image.path.endsWith(".png")
+    // Determine image type and embed
+    const pdfImage = image.path.toLowerCase().endsWith(".png")
       ? await pdfDoc.embedPng(imageBytes)
       : await pdfDoc.embedJpg(imageBytes);
 
+    // Create and configure page
     const page = pdfDoc.addPage(PAGE_SIZES[options.pageSize]);
-    if (options.orientation === "landscape") {
+    const isLandscape = options.orientation === "landscape";
+    if (isLandscape) {
       page.setRotation(degrees(90));
     }
 
+    // Calculate page dimensions
     let { width, height } = page.getSize();
-    
-    if (options.orientation === "landscape") {
+    if (isLandscape) {
       [width, height] = [height, width];
     }
     
+    // Calculate available space
     const maxWidth = width - (options.margin * 2);
     const maxHeight = height - (options.margin * 2);
     
+    // Calculate scaling
     const imageAspectRatio = pdfImage.width / pdfImage.height;
     const pageAspectRatio = maxWidth / maxHeight;
     
-    // Scale image to fill the page while maintaining aspect ratio
-    let drawWidth = maxWidth;
-    let drawHeight = maxHeight;
-    
-    if (imageAspectRatio > pageAspectRatio) {
-      // Image is wider than page ratio - fit to width
-      drawWidth = maxWidth;
-      drawHeight = maxWidth / imageAspectRatio;
-    } else {
-      // Image is taller than page ratio - fit to height
-      drawHeight = maxHeight;
-      drawWidth = maxHeight * imageAspectRatio;
-    }
+    const { drawWidth, drawHeight } = imageAspectRatio > pageAspectRatio
+      ? {
+          drawWidth: maxWidth,
+          drawHeight: maxWidth / imageAspectRatio,
+        }
+      : {
+          drawHeight: maxHeight,
+          drawWidth: maxHeight * imageAspectRatio,
+        };
 
-    // Center the image on the page
+    // Center the image
     const x = options.margin + (maxWidth - drawWidth) / 2;
     const y = options.margin + (maxHeight - drawHeight) / 2;
     
