@@ -1,6 +1,7 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { useCallback, useEffect, useState } from "react";
+import { PDFDocument } from "pdf-lib";
 import {
   closestCenter,
   DndContext,
@@ -16,6 +17,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import { degrees } from 'pdf-lib';
 import { useFetcher } from "react-router";
 
 import type { Route } from "./+types.upload";
@@ -181,6 +183,9 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
   }, [loaderData.images]);
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [modalImage, setModalImage] = useState<string | undefined>();
+  const [pageSize, setPageSize] = useState<"A4" | "Letter">("A4");
+  const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait");
+  const [quality, setQuality] = useState<number>(0.8);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -225,7 +230,91 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
 
   return (
     <div className="">
-      <h1 className="mb-6 text-2xl font-bold">Images</h1>
+      <div className="mb-6 flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Images</h1>
+        <div className="flex gap-4">
+          <select
+            value={pageSize}
+            onChange={(e) => setPageSize(e.target.value as "A4" | "Letter")}
+            className="rounded-md border px-3 py-1"
+          >
+            <option value="A4">A4</option>
+            <option value="Letter">Letter</option>
+          </select>
+          <select
+            value={orientation}
+            onChange={(e) => setOrientation(e.target.value as "portrait" | "landscape")}
+            className="rounded-md border px-3 py-1"
+          >
+            <option value="portrait">Portrait</option>
+            <option value="landscape">Landscape</option>
+          </select>
+          <input
+            type="number"
+            min="0.1"
+            max="1"
+            step="0.1"
+            value={quality}
+            onChange={(e) => setQuality(Number(e.target.value))}
+            className="w-20 rounded-md border px-3 py-1"
+          />
+          <Button
+            onClick={async () => {
+              const imagesToConvert = selectedImages.size > 0
+                ? orderedImages.filter(img => selectedImages.has(img.path))
+                : orderedImages;
+
+              const pdfDoc = await PDFDocument.create();
+              
+              for (const image of imagesToConvert) {
+                const response = await fetch(image.path);
+                const imageBytes = await response.arrayBuffer();
+                
+                let pdfImage;
+                if (image.path.endsWith('.png')) {
+                  pdfImage = await pdfDoc.embedPng(imageBytes);
+                } else {
+                  pdfImage = await pdfDoc.embedJpg(imageBytes);
+                }
+
+                const page = pdfDoc.addPage(pageSize === 'A4' ? [595, 842] : [612, 792]);
+                if (orientation === 'landscape') {
+                  page.setRotation(degrees(90));
+                }
+
+                const { width, height } = page.getSize();
+                const aspectRatio = pdfImage.width / pdfImage.height;
+                
+                let drawWidth = width - 40;
+                let drawHeight = drawWidth / aspectRatio;
+                
+                if (drawHeight > height - 40) {
+                  drawHeight = height - 40;
+                  drawWidth = drawHeight * aspectRatio;
+                }
+
+                page.drawImage(pdfImage, {
+                  x: (width - drawWidth) / 2,
+                  y: (height - drawHeight) / 2,
+                  width: drawWidth,
+                  height: drawHeight,
+                });
+              }
+
+              const pdfBytes = await pdfDoc.save();
+              const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+              const url = URL.createObjectURL(blob);
+              const link = document.createElement('a');
+              link.href = url;
+              link.download = 'images.pdf';
+              link.click();
+              URL.revokeObjectURL(url);
+            }}
+          >
+            Generate PDF
+          </Button>
+        </div>
+      </div>
 
       {orderedImages.length === 0 ? (
         <p className="text-gray-500">No images found in this directory</p>
