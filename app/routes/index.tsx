@@ -38,7 +38,19 @@ export async function action({ request }: Route.ActionArgs) {
 
   const { files, directoryName } = submission.value;
   const uploadPath = path.resolve(".", "uploads", directoryName);
-  await fs.mkdir(uploadPath, { recursive: true });
+
+  try {
+    await fs.access(uploadPath);
+    // Directory exists, return error
+    return submission.reply({
+      fieldErrors: {
+        directoryName: [`Directory "${directoryName}" already exists`],
+      },
+    });
+  } catch {
+    // Directory doesn't exist, create it
+    await fs.mkdir(uploadPath, { recursive: true });
+  }
   await Promise.all(
     files.map(async (file) => {
       const filePath = path.join(uploadPath, file.name);
