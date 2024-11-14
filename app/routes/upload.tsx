@@ -1,9 +1,10 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 
 import type { Route } from "./+types.upload";
 import { Modal } from "~/components/ui/modal";
+import { Button } from "~/components/ui/button";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const directoryPath = path.join(process.cwd(), "uploads", params.directory);
@@ -29,7 +30,42 @@ export async function action({ request, params }: Route.ActionArgs) {}
 
 export default function Upload({ loaderData }: Route.ComponentProps) {
   const { images } = loaderData;
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
+  const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
+  const [modalImage, setModalImage] = useState<string | null>(null);
+
+  const toggleImage = useCallback((imagePath: string) => {
+    setSelectedImages((prev) => {
+      const newSet = new Set(prev);
+      if (newSet.has(imagePath)) {
+        newSet.delete(imagePath);
+      } else {
+        newSet.add(imagePath);
+      }
+      return newSet;
+    });
+  }, []);
+
+  const handleImageClick = (imagePath: string, event: React.MouseEvent) => {
+    if (event.ctrlKey || event.metaKey) {
+      toggleImage(imagePath);
+    } else {
+      setModalImage(imagePath);
+    }
+  };
+
+  const nextImage = () => {
+    const imageArray = images.map(img => img.path);
+    const currentIndex = imageArray.indexOf(modalImage!);
+    const nextIndex = (currentIndex + 1) % imageArray.length;
+    setModalImage(imageArray[nextIndex]);
+  };
+
+  const previousImage = () => {
+    const imageArray = images.map(img => img.path);
+    const currentIndex = imageArray.indexOf(modalImage!);
+    const prevIndex = (currentIndex - 1 + imageArray.length) % imageArray.length;
+    setModalImage(imageArray[prevIndex]);
+  };
 
   return (
     <div className="">
@@ -43,20 +79,29 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
             <div
               key={image.path}
               className="aspect-square cursor-pointer overflow-hidden rounded-lg border"
-              onClick={() => setSelectedImage(image.path)}
+              onClick={(e) => handleImageClick(image.path, e)}
+              className={`aspect-square cursor-pointer overflow-hidden rounded-lg border ${
+                selectedImages.has(image.path) ? "ring-2 ring-blue-500" : ""
+              }`}
             >
               <img src={image.path} alt={image.name} className="h-full w-full object-cover" />
             </div>
           ))}
         </div>
       )}
-      <Modal isOpen={!!selectedImage} onClose={() => setSelectedImage(null)}>
-        {selectedImage && (
-          <img
-            src={selectedImage}
-            alt="Selected image"
-            className="max-h-[85vh] max-w-[85vw] object-contain"
-          />
+      <Modal isOpen={!!modalImage} onClose={() => setModalImage(null)}>
+        {modalImage && (
+          <div className="flex flex-col items-center gap-4">
+            <img
+              src={modalImage}
+              alt="Selected image"
+              className="max-h-[85vh] max-w-[85vw] object-contain"
+            />
+            <div className="flex gap-4">
+              <Button onClick={previousImage} variant="outline">Previous</Button>
+              <Button onClick={nextImage} variant="outline">Next</Button>
+            </div>
+          </div>
         )}
       </Modal>
     </div>
