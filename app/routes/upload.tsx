@@ -186,6 +186,7 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
   const [pageSize, setPageSize] = useState<"A4" | "Letter">("A4");
   const [orientation, setOrientation] = useState<"portrait" | "landscape">("portrait");
   const [quality, setQuality] = useState<number>(0.8);
+  const [margin, setMargin] = useState<number>(40);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -276,6 +277,21 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
               className="w-20 rounded-md border px-3 py-1"
             />
           </div>
+          <div className="flex flex-col gap-1">
+            <label htmlFor="margin" className="text-sm font-medium">
+              Margin (pt)
+            </label>
+            <input
+              id="margin"
+              type="number"
+              min="0"
+              max="100"
+              step="5"
+              value={margin}
+              onChange={(e) => setMargin(Number(e.target.value))}
+              className="w-20 rounded-md border px-3 py-1"
+            />
+          </div>
           <Button
             className="self-end"
             onClick={async () => {
@@ -288,6 +304,7 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
                 pageSize,
                 orientation,
                 quality,
+                margin,
               });
               const blob = new Blob([pdfBytes], { type: "application/pdf" });
               const url = URL.createObjectURL(blob);

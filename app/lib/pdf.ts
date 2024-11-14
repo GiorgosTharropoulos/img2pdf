@@ -4,14 +4,13 @@ interface PDFGenerationOptions {
   pageSize: "A4" | "Letter";
   orientation: "portrait" | "landscape";
   quality: number;
+  margin: number;
 }
 
 const PAGE_SIZES = {
   A4: [595, 842] as const,
   Letter: [612, 792] as const,
 };
-
-const MARGIN = 40; // 40 point margins
 
 export async function generatePDFFromImages(
   images: Array<{ path: string; name: string }>,
@@ -38,8 +37,8 @@ export async function generatePDFFromImages(
       [width, height] = [height, width];
     }
     
-    const maxWidth = width - (MARGIN * 2);
-    const maxHeight = height - (MARGIN * 2);
+    const maxWidth = width - (options.margin * 2);
+    const maxHeight = height - (options.margin * 2);
     
     const imageAspectRatio = pdfImage.width / pdfImage.height;
     const pageAspectRatio = maxWidth / maxHeight;
@@ -59,8 +58,8 @@ export async function generatePDFFromImages(
     }
 
     // Center the image on the page
-    const x = MARGIN + (maxWidth - drawWidth) / 2;
-    const y = MARGIN + (maxHeight - drawHeight) / 2;
+    const x = options.margin + (maxWidth - drawWidth) / 2;
+    const y = options.margin + (maxHeight - drawHeight) / 2;
     
     page.drawImage(pdfImage, {
       x,
