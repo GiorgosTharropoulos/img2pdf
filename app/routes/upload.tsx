@@ -1,7 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
 import { useCallback, useEffect, useState } from "react";
-import { PDFDocument } from "pdf-lib";
 import {
   closestCenter,
   DndContext,
@@ -17,7 +16,7 @@ import {
   useSortable,
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { degrees } from 'pdf-lib';
+import { degrees, PDFDocument } from "pdf-lib";
 import { useFetcher } from "react-router";
 
 import type { Route } from "./+types.upload";
@@ -277,35 +276,37 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
             />
           </div>
           <Button
+            className="self-end"
             onClick={async () => {
-              const imagesToConvert = selectedImages.size > 0
-                ? orderedImages.filter(img => selectedImages.has(img.path))
-                : orderedImages;
+              const imagesToConvert =
+                selectedImages.size > 0
+                  ? orderedImages.filter((img) => selectedImages.has(img.path))
+                  : orderedImages;
 
               const pdfDoc = await PDFDocument.create();
-              
+
               for (const image of imagesToConvert) {
                 const response = await fetch(image.path);
                 const imageBytes = await response.arrayBuffer();
-                
+
                 let pdfImage;
-                if (image.path.endsWith('.png')) {
+                if (image.path.endsWith(".png")) {
                   pdfImage = await pdfDoc.embedPng(imageBytes);
                 } else {
                   pdfImage = await pdfDoc.embedJpg(imageBytes);
                 }
 
-                const page = pdfDoc.addPage(pageSize === 'A4' ? [595, 842] : [612, 792]);
-                if (orientation === 'landscape') {
+                const page = pdfDoc.addPage(pageSize === "A4" ? [595, 842] : [612, 792]);
+                if (orientation === "landscape") {
                   page.setRotation(degrees(90));
                 }
 
                 const { width, height } = page.getSize();
                 const aspectRatio = pdfImage.width / pdfImage.height;
-                
+
                 let drawWidth = width - 40;
                 let drawHeight = drawWidth / aspectRatio;
-                
+
                 if (drawHeight > height - 40) {
                   drawHeight = height - 40;
                   drawWidth = drawHeight * aspectRatio;
@@ -320,11 +321,11 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
               }
 
               const pdfBytes = await pdfDoc.save();
-              const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+              const blob = new Blob([pdfBytes], { type: "application/pdf" });
               const url = URL.createObjectURL(blob);
-              const link = document.createElement('a');
+              const link = document.createElement("a");
               link.href = url;
-              link.download = 'images.pdf';
+              link.download = "images.pdf";
               link.click();
               URL.revokeObjectURL(url);
             }}
