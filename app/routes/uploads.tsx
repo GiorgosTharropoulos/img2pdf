@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import path from "path";
-import { NavLink, Outlet } from "react-router";
+import { NavLink, Outlet } from "react-router-dom";
 
 import type { Route } from "./+types.uploads";
 
@@ -39,7 +39,7 @@ export default function Uploads({ loaderData }: Route.ComponentProps) {
                 <NavLink
                   key={dir.path}
                   className="rounded-lg border p-4 hover:bg-gray-50 [&.active]:bg-accent [&.active]:underline"
-                  to={`/uploads/${dir.name}`}
+                  to={dir.path}
                 >
                   {dir.name}
                 </NavLink>
