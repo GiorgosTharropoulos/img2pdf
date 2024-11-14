@@ -1,7 +1,9 @@
 import { promises as fs } from "fs";
 import path from "path";
+import { useState } from "react";
 
 import type { Route } from "./+types.upload";
+import { Modal } from "~/components/ui/modal";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const directoryPath = path.join(process.cwd(), "uploads", params.directory);
@@ -27,6 +29,7 @@ export async function action({ request, params }: Route.ActionArgs) {}
 
 export default function Upload({ loaderData }: Route.ComponentProps) {
   const { images } = loaderData;
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   return (
     <div className="">
@@ -37,12 +40,25 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
       ) : (
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
           {images.map((image) => (
-            <div key={image.path} className="aspect-square overflow-hidden rounded-lg border">
+            <div
+              key={image.path}
+              className="aspect-square cursor-pointer overflow-hidden rounded-lg border"
+              onClick={() => setSelectedImage(image.path)}
+            >
               <img src={image.path} alt={image.name} className="h-full w-full object-cover" />
             </div>
           ))}
         </div>
       )}
+      <Modal isOpen={!!selectedImage} onClose={() => setSelectedImage(null)}>
+        {selectedImage && (
+          <img
+            src={selectedImage}
+            alt="Selected image"
+            className="max-h-[85vh] max-w-[85vw] object-contain"
+          />
+        )}
+      </Modal>
     </div>
   );
 }
