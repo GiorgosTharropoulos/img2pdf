@@ -12,6 +12,10 @@ import { Button } from "~/components/ui/button";
 import { Label } from "~/components/ui/label";
 
 const schema = z.object({
+  directoryName: z
+    .string()
+    .min(1, "Directory name is required")
+    .regex(/^[a-zA-Z0-9-_]+$/, "Directory name can only contain letters, numbers, hyphens and underscores"),
   files: z
     .array(z.instanceof(File))
     .min(1, "At least one file is required")
@@ -29,10 +33,8 @@ export async function action({ request }: Route.ActionArgs) {
     return submission.reply();
   }
 
-  const { files } = submission.value;
-  const now = new Date().toISOString();
-
-  const uploadPath = path.resolve(".", "uploads", now);
+  const { files, directoryName } = submission.value;
+  const uploadPath = path.resolve(".", "uploads", directoryName);
   await fs.mkdir(uploadPath, { recursive: true });
   await Promise.all(
     files.map(async (file) => {
@@ -43,7 +45,7 @@ export async function action({ request }: Route.ActionArgs) {
     }),
   );
 
-  throw redirect(`/uploads/${now}`);
+  throw redirect(`/uploads/${directoryName}`);
 }
 
 export default function Home({ actionData }: Route.ComponentProps) {
@@ -59,6 +61,15 @@ export default function Home({ actionData }: Route.ComponentProps) {
   return (
     <div className="container mx-auto mt-4 flex-1">
       <Form method="POST" {...getFormProps(form)} encType="multipart/form-data">
+        <Field className="flex-1">
+          <Label htmlFor={fields.directoryName.id}>Directory Name</Label>
+          <InputConform meta={fields.directoryName} type="text" />
+          {fields.directoryName.errors && (
+            <FieldError id={fields.directoryName.errorId}>
+              {fields.directoryName.errors}
+            </FieldError>
+          )}
+        </Field>
         <Field className="flex-1">
           <Label htmlFor={fields.files.id}>Name</Label>
           <InputConform meta={fields.files} type="file" multiple />
