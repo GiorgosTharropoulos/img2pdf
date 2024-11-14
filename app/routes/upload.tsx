@@ -17,7 +17,6 @@ import {
 } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import { useFetcher } from "react-router";
-import { generatePDFFromImages } from "~/lib/pdf";
 
 import type { Route } from "./+types.upload";
 import {
@@ -39,6 +38,7 @@ import {
   ContextMenuTrigger,
 } from "~/components/ui/context-menu";
 import { Modal } from "~/components/ui/modal";
+import { generatePDFFromImages } from "~/lib/pdf";
 
 export async function loader({ params }: Route.LoaderArgs) {
   const directoryPath = path.join(process.cwd(), "uploads", params.directory);
@@ -180,6 +180,7 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
   useEffect(() => {
     setOrderedImages(loaderData.images);
   }, [loaderData.images]);
+
   const [selectedImages, setSelectedImages] = useState<Set<string>>(new Set());
   const [modalImage, setModalImage] = useState<string | undefined>();
   const [pageSize, setPageSize] = useState<"A4" | "Letter">("A4");
@@ -278,9 +279,10 @@ export default function Upload({ loaderData }: Route.ComponentProps) {
           <Button
             className="self-end"
             onClick={async () => {
-              const imagesToConvert = selectedImages.size > 0
-                ? orderedImages.filter((img) => selectedImages.has(img.path))
-                : orderedImages;
+              const imagesToConvert =
+                selectedImages.size > 0
+                  ? orderedImages.filter((img) => selectedImages.has(img.path))
+                  : orderedImages;
 
               const pdfBytes = await generatePDFFromImages(imagesToConvert, {
                 pageSize,
