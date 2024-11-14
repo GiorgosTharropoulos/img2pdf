@@ -2,6 +2,13 @@ import { promises as fs } from "fs";
 import path from "path";
 import { useCallback, useEffect, useState } from "react";
 import {
+  ContextMenu,
+  ContextMenuContent,
+  ContextMenuItem,
+  ContextMenuSeparator,
+  ContextMenuTrigger,
+} from "~/components/ui/context-menu";
+import {
   closestCenter,
   DndContext,
   KeyboardSensor,
@@ -62,22 +69,31 @@ function SortableImage({
   };
 
   return (
-    <div
-      ref={setNodeRef}
-      style={style}
-      {...attributes}
-      {...listeners}
-      className={`aspect-square cursor-pointer overflow-hidden rounded-lg border select-none ${
-        isSelected ? "ring-2 ring-blue-500" : ""
-      }`}
-    >
-      <div 
-        className="h-full w-full"
-        onClick={onClick}
-      >
-        <img src={image.path} alt={image.name} className="h-full w-full object-cover pointer-events-none" />
-      </div>
-    </div>
+    <ContextMenu>
+      <ContextMenuTrigger>
+        <div
+          ref={setNodeRef}
+          style={style}
+          {...attributes}
+          {...listeners}
+          className={`aspect-square cursor-pointer overflow-hidden rounded-lg border select-none ${
+            isSelected ? "ring-2 ring-blue-500" : ""
+          }`}
+        >
+          <div className="h-full w-full">
+            <img src={image.path} alt={image.name} className="h-full w-full object-cover pointer-events-none" />
+          </div>
+        </div>
+      </ContextMenuTrigger>
+      <ContextMenuContent>
+        <ContextMenuItem onClick={() => onClick({ ctrlKey: false } as React.MouseEvent)}>
+          View Image
+        </ContextMenuItem>
+        <ContextMenuItem onClick={() => onClick({ ctrlKey: true } as React.MouseEvent)}>
+          {isSelected ? "Deselect" : "Select"}
+        </ContextMenuItem>
+      </ContextMenuContent>
+    </ContextMenu>
   );
 }
 
